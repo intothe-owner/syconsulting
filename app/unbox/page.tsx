@@ -3,6 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
+
+import GallerySection, { GalleryItem } from "@/components/GallerySection";
+
+/** ✅ 너 백엔드 주소로 수정 */
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8080";
+const LIST_URL = `${API_BASE}/gallery`; // GET /gallery?page=1&pageSize=60 (가정)
 
 type Section = {
   id: string;
@@ -36,9 +43,107 @@ const item: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.45 } },
 };
 
+/** ✅ 백엔드 응답 타입(필드명은 네 백엔드에 맞춰 수정 가능) */
+type ApiGalleryItem = {
+  id: string | number;
+  imageUrl?: string; // 원본
+  thumbUrl?: string; // 썸네일
+  title?: string | null;
+  alt?: string | null;
+};
+
 export default function UnboxOnePage() {
+  const { data: session, status } = useSession();
+  const isAdmin =
+    status === "authenticated" && (session as any)?.user?.role === "admin";
+
+  // ✅ 갤러리 스크롤 컨테이너 ref
+  const galleryScrollRef = useRef<HTMLDivElement | null>(null);
+
+  // ✅ 백엔드에서 내려받은 갤러리 목록 state
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [galleryError, setGalleryError] = useState<string | null>(null);
+
+  // ✅ 목록 가져오기 함수
+  const fetchGallery = async () => {
+    setGalleryLoading(true);
+    setGalleryError(null);
+
+    try {
+      const r = await fetch(`${LIST_URL}?page=1&pageSize=120`, { method: "GET" });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data?.message || "갤러리 목록 로드 실패");
+
+      const apiItems: ApiGalleryItem[] = (data.items ?? data ?? []) as any[];
+
+      // ✅ GallerySection이 요구하는 형태로 매핑
+      const mapped: GalleryItem[] = apiItems.map((x) => ({
+        id: String(x.id),
+        thumbSrc: x.thumbUrl ?? x.imageUrl ?? "",
+        fullSrc: x.imageUrl ?? x.thumbUrl ?? "",
+        title: x.title ?? undefined,
+        alt: x.alt ?? x.title ?? undefined,
+      }));
+
+      // 빈 URL 제거
+      setGalleryItems(mapped.filter((m) => m.thumbSrc && m.fullSrc));
+    } catch (e: any) {
+      setGalleryError(e?.message ?? "갤러리 목록 로드 오류");
+    } finally {
+      setGalleryLoading(false);
+    }
+  };
+
+  // ✅ 페이지 진입 시 1회 로드
+  useEffect(() => {
+    fetchGallery();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const sections: Section[] = useMemo(
     () => [
+      {
+        id: "gallery",
+        kicker: "Gallery",
+        title: "활동 갤러리",
+        body: "UNBOX의 교육/봉사 활동 현장을 공유합니다.",
+        render: () => (
+          <>
+            {galleryLoading && (
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
+                갤러리 불러오는 중...
+              </div>
+            )}
+
+            {galleryError && (
+              <div className="mt-6 rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-sm text-red-100">
+                {galleryError}
+                <button
+                  type="button"
+                  onClick={fetchGallery}
+                  className="ml-3 rounded-lg border border-red-300/20 bg-black/20 px-2 py-1 text-xs text-red-50 hover:bg-black/30"
+                >
+                  다시 시도
+                </button>
+              </div>
+            )}
+
+            {/* ✅ 여기서 백엔드 목록을 GallerySection으로 전달 */}
+            <GallerySection
+              items={galleryItems}
+              variantsItem={item}
+              scrollRef={galleryScrollRef}
+              pageSize={12}
+              autoLoad={false} // ✅ 부모에서 로드하니까 끔
+              onUploadedItems={(newItems) => {
+                // ✅ 업로드 성공하면 즉시 목록에 반영(최신이 위로)
+                setGalleryItems((prev) => [...newItems, ...prev]);
+              }}
+            />
+          </>
+        ),
+      },
       {
         id: "hero",
         kicker: "UNBOX",
@@ -118,38 +223,51 @@ export default function UnboxOnePage() {
         ),
       },
     ],
-    []
+    [galleryItems, galleryLoading, galleryError]
   );
 
   const [idx, setIdx] = useState(0);
   const lockRef = useRef(false);
 
-  // ✅ 모바일 스와이프용 refs
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const touchStartY = useRef<number | null>(null);
 
-  // ✅ 휠 1번 = 이전/다음 섹션
+  // ✅ 휠: 갤러리 섹션에서는 갤러리 스크롤 우선
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      if (lockRef.current) return;
       e.preventDefault();
 
-      lockRef.current = true;
-      const dir = e.deltaY > 0 ? 1 : -1;
+      const curSection = sections[idx];
+      const isGallery = curSection?.id === "gallery";
 
-      setIdx((prev) => {
-        const next = Math.max(0, Math.min(sections.length - 1, prev + dir));
-        return next;
-      });
+      if (isGallery) {
+        const sc = galleryScrollRef.current;
+        if (sc) {
+          const atTop = sc.scrollTop <= 0;
+          const atBottom = sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1;
+          const goingDown = e.deltaY > 0;
+
+          if ((goingDown && !atBottom) || (!goingDown && !atTop)) {
+            sc.scrollBy({ top: e.deltaY, behavior: "auto" });
+            return;
+          }
+        }
+      }
+
+      if (lockRef.current) return;
+      lockRef.current = true;
+
+      const dir = e.deltaY > 0 ? 1 : -1;
+      setIdx((prev) => Math.max(0, Math.min(sections.length - 1, prev + dir)));
 
       window.setTimeout(() => (lockRef.current = false), 700);
     };
 
     window.addEventListener("wheel", onWheel, { passive: false });
     return () => window.removeEventListener("wheel", onWheel as any);
-  }, [sections.length]);
+  }, [sections, idx]);
 
-  // ✅ 모바일 스와이프(위/아래)로 이전/다음 섹션
+  // ✅ 모바일 스와이프
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -164,7 +282,6 @@ export default function UnboxOnePage() {
 
     const onTouchMove = (e: TouchEvent) => {
       if (touchStartY.current == null) return;
-      // ✅ 스크롤/바운스 방지(이 페이지는 1-page 전환 UX)
       e.preventDefault();
     };
 
@@ -173,19 +290,15 @@ export default function UnboxOnePage() {
       if (touchStartY.current == null) return;
 
       const endY = e.changedTouches?.[0]?.clientY ?? touchStartY.current;
-      const dy = endY - touchStartY.current; // +면 아래로 드래그
+      const dy = endY - touchStartY.current;
       touchStartY.current = null;
 
       if (Math.abs(dy) < THRESHOLD) return;
 
       lockRef.current = true;
-      const dir = dy < 0 ? 1 : -1; // 위로 스와이프 => 다음
+      const dir = dy < 0 ? 1 : -1;
 
-      setIdx((prev) => {
-        const next = Math.max(0, Math.min(sections.length - 1, prev + dir));
-        return next;
-      });
-
+      setIdx((prev) => Math.max(0, Math.min(sections.length - 1, prev + dir)));
       window.setTimeout(() => (lockRef.current = false), 700);
     };
 
@@ -201,15 +314,15 @@ export default function UnboxOnePage() {
   }, [sections.length]);
 
   const cur = sections[idx];
+  const isGallery = cur.id === "gallery";
 
   return (
     <div
       ref={wrapRef}
       className="relative h-screen w-screen overflow-hidden bg-zinc-950 overscroll-none touch-none"
     >
-      {/* 좌측 로고 + 재단명 고정 */}
+      {/* 로고 */}
       <div className="absolute left-6 top-6 z-50 flex items-center gap-4">
-        {/* 로고 */}
         <div className="pointer-events-auto relative select-none overflow-hidden rounded-2xl border border-white/10 bg-white backdrop-blur w-[84px] h-[84px]">
           <Image
             src="/images/unbox.png"
@@ -220,17 +333,14 @@ export default function UnboxOnePage() {
             priority
           />
         </div>
-
-        {/* 텍스트 */}
         <div className="pointer-events-none">
           <div className="text-2xl font-extrabold tracking-tight text-white md:text-3xl">
             언박스 재단
           </div>
-          {/* <div className="mt-1 text-sm text-white/60">UNBOX Foundation</div> */}
         </div>
       </div>
 
-      {/* 인디케이터(선택): 오른쪽 점 */}
+      {/* 인디케이터 */}
       <div className="absolute right-6 top-1/2 z-50 -translate-y-1/2 space-y-3">
         {sections.map((s, i) => (
           <button
@@ -244,7 +354,6 @@ export default function UnboxOnePage() {
         ))}
       </div>
 
-      {/* 섹션 전환 */}
       <AnimatePresence mode="wait">
         <motion.section
           key={cur.id}
@@ -254,7 +363,6 @@ export default function UnboxOnePage() {
           exit="hidden"
           className="h-screen w-screen"
         >
-          {/* 섹션별 배경(컨셉) */}
           <div
             className={`absolute inset-0 ${
               cur.id === "hero"
@@ -263,7 +371,14 @@ export default function UnboxOnePage() {
             }`}
           />
 
-          <div className="relative mx-auto flex h-full max-w-6xl flex-col justify-center px-6">
+          <div
+            className={[
+              "relative mx-auto h-full max-w-6xl px-6",
+              isGallery
+                ? "flex flex-col justify-start pt-[120px] pb-10"
+                : "flex flex-col justify-center",
+            ].join(" ")}
+          >
             <motion.div variants={stagger} initial="hidden" animate="show">
               {cur.kicker && (
                 <motion.div
@@ -286,7 +401,7 @@ export default function UnboxOnePage() {
               {cur.body && (
                 <motion.p
                   variants={item}
-                  className="mt-5 max-w-3xl text-base leading-relaxed text-white/75 md:text-lg"
+                  className="mt-4 max-w-3xl text-base leading-relaxed text-white/75 md:text-lg"
                 >
                   {cur.body}
                 </motion.p>
