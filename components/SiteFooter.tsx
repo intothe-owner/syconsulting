@@ -14,7 +14,7 @@ type SiteFooterProps = {
 
 export default function SiteFooter({
   companyName = "SY 컨설팅",
-  infoLine = "사업자등록번호 000-00-00000 | 대표 홍길동 | 서울시 OO구 OO로 00 | 02-000-0000",
+  infoLine = "사업자등록번호 000-00-00000 | 대표 신동훈 | 부산광역시 부산진구 전포대로 275번길 65(전포동) | 010-4181-5082",
   copyrightName,
   loginHref,
 }: SiteFooterProps) {

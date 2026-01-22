@@ -371,7 +371,6 @@ export default function QnaDetailPage() {
 
       <SiteFooter
         companyName="SY 컨설팅"
-        infoLine="사업자등록번호 000-00-00000 | 대표 OOO | 서울시 OO구 OO로 00 | 02-000-0000 | Email: hello@sy.co.kr"
       />
     </div>
   );
