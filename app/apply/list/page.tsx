@@ -1,7 +1,7 @@
 // app/apply/list/page.tsx
 import ApplyListClient from "./ApplyListClient";
 import { fetchApplyList } from "@/lib/applyApi";
-
+import { headers } from "next/headers";
 type SearchParams = {
   page?: string;
   q?: string;
@@ -16,6 +16,13 @@ export default async function ApplyListPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
+     // ✅ 1) 안드로이드 앱(WebView)만 접근 허용 - User-Agent 체크
+  const h = await headers();
+    const ua = h.get("user-agent") ?? "";
+    const isUnboxApp = ua.includes("UNBOX_APP");
+    if (!isUnboxApp) return(
+        <div>안드로이드 앱에서만 실행이 됩니다.</div>
+    )
   const sp = await searchParams;
 
   const page = Math.max(1, Number(sp.page ?? 1));

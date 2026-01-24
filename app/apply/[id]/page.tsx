@@ -1,12 +1,18 @@
 // app/apply/[id]/page.tsx
 import Link from "next/link";
 import { fetchApplyDetail, formatKST, classTypeLabel, statusLabel, statusBadgeClass } from "@/lib/applyApi";
-
+import { headers } from "next/headers";
 export default async function ApplyDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+    const h = await headers();
+    const ua = h.get("user-agent") ?? "";
+    const isUnboxApp = ua.includes("UNBOX_APP");
+    if (!isUnboxApp) return(
+        <div>안드로이드 앱에서만 실행이 됩니다.</div>
+    )
   const { id } = await params;
   const data = await fetchApplyDetail(id);
   const it = data.item;
