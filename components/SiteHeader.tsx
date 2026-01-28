@@ -1,5 +1,6 @@
 "use client";
 
+import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -90,6 +91,9 @@ export default function SiteHeader() {
 
   return (
     <>
+      <Head>
+        <title>SY 컨설팅</title>
+      </Head>
       <header className={headerCls}>
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2">
