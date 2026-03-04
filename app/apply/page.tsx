@@ -22,6 +22,7 @@ type FormState = {
   neighborhoodDetail: string;
 
   motivation: string;
+  recommender:string;
   howFound: HowFound | "";
 
   // ✅ 개인정보 동의
@@ -131,6 +132,7 @@ export default function ApplyPage() {
     neighborhoodDetail: "",
     motivation: "",
     howFound: "",
+    recommender:"",
     privacyAgree: false,
   });
 
@@ -144,6 +146,7 @@ export default function ApplyPage() {
     neighborhoodDetail: false,
     motivation: false,
     howFound: false,
+    recommender:false,
     privacyAgree: false,
   });
 
@@ -188,6 +191,7 @@ export default function ApplyPage() {
       neighborhoodDetail: true,
       motivation: true,
       howFound: true,
+      recommender:true,
       privacyAgree: true,
     });
 
@@ -221,6 +225,7 @@ export default function ApplyPage() {
         neighborhoodDetail: "",
         motivation: "",
         howFound: "",
+        recommender:"",
         privacyAgree: false,
       });
 
@@ -232,6 +237,7 @@ export default function ApplyPage() {
         neighborhoodDetail: false,
         motivation: false,
         howFound: false,
+        recommender:false,
         privacyAgree: false,
       });
     } catch (err: any) {
@@ -369,6 +375,17 @@ export default function ApplyPage() {
                   )}
                 </div>
               </div>
+            </div>
+            {/* 추천인 */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">추천인</label>
+              <input
+                value={form.recommender}
+                onChange={(e) => setField("recommender", e.target.value)}
+                onBlur={() => markTouched("recommender")}
+                placeholder="추천인을 입력하세요"
+                className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200"
+              />
             </div>
 
             {/* 지원동기 */}
