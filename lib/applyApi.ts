@@ -14,6 +14,7 @@ export type ApplyItem = {
   howFound: string;
   motivation?: string;
   status: ApplyStatus;
+  recommender?:string;
   privacyAgree: boolean;
   createdAt: string;
   updatedAt: string;

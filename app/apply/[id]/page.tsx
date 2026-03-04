@@ -60,6 +60,7 @@ export default async function ApplyDetailPage({
             <Row label="전화(숫자)" value={it.phoneDigits} />
             <Row label="주소" value={it.address || `${it.district} ${it.neighborhoodDetail}`} />
             <Row label="유입경로" value={it.howFound} />
+            <Row label="지인추천" value={it.recommender||''} />
             <Row label="개인정보 동의" value={it.privacyAgree ? "동의" : "미동의"} />
           </div>
         </section>
