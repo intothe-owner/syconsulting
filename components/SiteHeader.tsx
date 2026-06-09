@@ -22,7 +22,14 @@ export default function SiteHeader() {
 
   const menu: MenuItem[] = useMemo(
     () => [
-      { label: "회사소개", href: "/about" },
+      { label: "회사소개", 
+        href: "/about",
+        children: [
+          { label: "회사소개", href: "/about" },
+          { label: "인사말", href: "/about/greet" }
+          
+        ],
+      },
       {
         label: "서비스",
         href: "/services/business-corp",
@@ -38,7 +45,7 @@ export default function SiteHeader() {
       { label: "공지사항", href: "/notice" },
       { label: "Q&A", href: "/qna" },
       { label: "FAQ", href: "/faq" },
-      { label: "UNBOX", href: "/unbox", cta: true, external: true }, // ✅ 새탭
+      { label: "MIRACLE", href: "https://www.miracle-on.co.kr", cta: true, external: true }, // ✅ 새탭
     ],
     []
   );

@@ -250,7 +250,18 @@ export default function About() {
             </div>
           </motion.div>
         </motion.section>
-
+        <motion.section
+          variants={sectionWrap}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.18 }}
+          className="grid gap-5 md:grid-cols-1"
+        >
+          <ValueCard title="조직도" icon={<Target className="h-5 w-5" />}>
+            <img src="/images/group.png" alt="조직도" className="w-full"/>
+          </ValueCard>
+        </motion.section>
+        
         {/* 2) Mission / Vision */}
         <motion.section
           variants={sectionWrap}
