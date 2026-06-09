@@ -33,6 +33,11 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ko_KR",
   },
+  verification:{
+    other:{
+      'naver-site-verification':'b7be1abbfc5e16f33212567a730e8a7f0b0ab304'
+    }
+  }
 };
 
 // ✅ “타이틀바(주소창/상단바) 색상” = theme-color
@@ -43,6 +48,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
+      
       <body className="min-h-screen bg-[#070b14] text-white">
         <Providers>
           <LayoutShell>{children}</LayoutShell>
