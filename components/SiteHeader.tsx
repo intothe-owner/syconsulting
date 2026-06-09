@@ -45,7 +45,7 @@ export default function SiteHeader() {
       { label: "공지사항", href: "/notice" },
       { label: "Q&A", href: "/qna" },
       { label: "FAQ", href: "/faq" },
-      { label: "MIRACLE", href: "https://www.miracle-on.co.kr", cta: true, external: true }, // ✅ 새탭
+      { label: "MIRACLEON", href: "https://www.miracle-on.co.kr", cta: true, external: true }, // ✅ 새탭
     ],
     []
   );
