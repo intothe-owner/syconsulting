@@ -17,6 +17,7 @@ import {
   Settings,
   Image as ImageIcon,
 } from "lucide-react";
+import Image from "next/image";
 
 
 
@@ -277,8 +278,13 @@ export default function DevelopmentFree() {
               <div className="aspect-[4/3] w-full bg-slate-100 flex items-center justify-center relative">
                 {/* 추후 여기에 실제 이미지를 <img>나 <Image> 태그로 교체하시면 됩니다 */}
                 <div className="flex flex-col items-center gap-2 text-slate-400">
-                  <ImageIcon className="h-10 w-10 opacity-50" />
-                  <span className="text-sm font-medium">웹사이트 디자인 예시 이미지</span>
+                  <Image 
+                    src="/images/homepage.png" 
+                    alt="반응형 웹사이트가 PC, 태블릿, 모바일 기기에 최적화된 예시"
+                    fill
+                    className="object-cover"
+                    priority={true}
+                    />
                 </div>
               </div>
               <div className="p-6">
@@ -299,8 +305,13 @@ export default function DevelopmentFree() {
               <div className="aspect-[4/3] w-full bg-slate-100 flex items-center justify-center relative">
                 {/* 추후 여기에 실제 앱 화면 이미지를 교체하시면 됩니다 */}
                 <div className="flex flex-col items-center gap-2 text-slate-400">
-                  <ImageIcon className="h-10 w-10 opacity-50" />
-                  <span className="text-sm font-medium">안드로이드 앱 예시 이미지</span>
+                  <Image 
+                    src="/images/android.png" 
+                    alt="반응형 웹사이트가 PC, 태블릿, 모바일 기기에 최적화된 예시"
+                    fill
+                    className="object-cover"
+                    priority={true}
+                    />
                 </div>
               </div>
               <div className="p-6">
