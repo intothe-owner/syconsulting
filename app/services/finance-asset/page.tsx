@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 
 const TABS: ServiceTabItem[] = [
+
   { label: "사업자·법인 컨설팅", href: "/services/business-corp" },
   { label: "금융소득·자산 컨설팅", href: "/services/finance-asset" },
   { label: "상속·증여 컨설팅", href: "/services/inheritance-gift" },

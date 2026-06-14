@@ -32,8 +32,9 @@ export default function SiteHeader() {
       },
       {
         label: "서비스",
-        href: "/services/business-corp",
+        href: "/services/dev",
         children: [
+          { label: "홈페이지 및 앱 개발(무료)", href: "/services/dev" },
           { label: "사업자·법인 컨설팅", href: "/services/business-corp" },
           { label: "금융소득·자산 컨설팅", href: "/services/finance-asset" },
           { label: "상속·증여 컨설팅", href: "/services/inheritance-gift" },
