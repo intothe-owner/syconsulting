@@ -191,12 +191,18 @@ export default function FaqPage() {
   const [localItems, setLocalItems] = useState<FaqItem[] | null>(null);
 
   const items = useMemo(() => {
-    const src = localItems ?? data ?? [];
+    const src = localItems ?? data;
+
+    // ✅ src가 배열이 아닐 경우 빈 배열을 반환하여 에러 방지
+    if (!Array.isArray(src)) {
+      return [];
+    }
+
     return [...src].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
   }, [data, localItems]);
 
   // data가 새로 오면 localItems 리셋(드래그 후 서버 반영)
-  useMemo(() => { 
+  useMemo(() => {
     if (!data) return;
     setLocalItems(null);
   }, [data]);
