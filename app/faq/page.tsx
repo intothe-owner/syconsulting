@@ -196,7 +196,7 @@ export default function FaqPage() {
   }, [data, localItems]);
 
   // data가 새로 오면 localItems 리셋(드래그 후 서버 반영)
-  useMemo(() => {
+  useMemo(() => { 
     if (!data) return;
     setLocalItems(null);
   }, [data]);

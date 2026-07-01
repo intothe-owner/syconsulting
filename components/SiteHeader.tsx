@@ -24,11 +24,6 @@ export default function SiteHeader() {
     () => [
       { label: "회사소개", 
         href: "/about",
-        children: [
-          { label: "회사소개", href: "/about" },
-          { label: "인사말", href: "/about/greet" }
-          
-        ],
       },
       {
         label: "서비스",
