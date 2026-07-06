@@ -10,6 +10,9 @@ export const metadata: Metadata = {
     template: "%s | SY컨설팅",
   },
   description: "사업자·법인, 세무, 자산, 상속·증여 등 맞춤 컨설팅을 제공합니다.",
+  alternates: {
+    canonical: 'https://www.syconsulting.co.kr', // 원본 URL 입력
+  },
   keywords: [
     "SY컨설팅",
     "컨설팅",
